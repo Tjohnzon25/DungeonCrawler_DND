@@ -69,6 +69,7 @@ const FormRichTextField = ({
             {renderControls}
           </MenuControlsContainer>
         )}
+        {...otherProps}
       >
         {children}
       </RichTextEditor>
