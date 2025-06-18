@@ -2,15 +2,15 @@ import { useFormik } from 'formik';
 import React from 'react';
 import { useSnackbar } from 'notistack';
 import FormTextField from '../../Formik/FormTextField';
-import { postRowToTable } from '../../../lib/db_functions';
+import { postRowToTable, updateRowInTable } from '../../../lib/db_functions';
 import { Box, Button } from '@mui/material';
 
-const AddPlayer = () => {
+const AddPlayer = ({ playerData }) => {
 
   const { enqueueSnackbar } = useSnackbar();
 
   const formik = useFormik({
-    initialValues: {
+    initialValues: playerData || {
       name: '',
       level: 1,
       xp: 0,
@@ -32,10 +32,13 @@ const AddPlayer = () => {
       return errors
     },
     onSubmit: async values => {
-      console.log('here')
       try {
-        await postRowToTable('players', [values]);
-        enqueueSnackbar('Successfully added player', { variant: 'success' });
+        if (playerData) {
+          updateRowInTable('players', values, 'id', values.id);
+        } else {
+          await postRowToTable('players', [values]);
+          enqueueSnackbar('Successfully added player', { variant: 'success' });
+        }
       } catch (error) {
         enqueueSnackbar(`Error when creating player...${error}`, { variant: 'error' });
       }
@@ -70,7 +73,7 @@ const AddPlayer = () => {
         sx={{ mt: 2 }}
         onClick={handleSubmit}
       >
-        Add Player
+        {playerData ? 'Update Player' : 'Add Player'}
       </Button>
     </Box>
   );

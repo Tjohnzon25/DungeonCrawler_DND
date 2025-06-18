@@ -19,4 +19,15 @@ const AddPlayerConfig = {
 
 export const AddPlayerDefault = {};
 
+export const EditPlayer = {
+  args: {
+    playerData: {
+      id: '91b7f195-6bd0-4f45-b0a8-d5aeaff40486',
+      name: 'test',
+      xp: 0,
+      level: 1
+    }
+  }
+};
+
 export default AddPlayerConfig;
