@@ -14,19 +14,19 @@ import { SupabaseOperators } from "./supabaseOperators";
  * To check by multiple columns: 'some_column,other_column'
  */
 export const getTableRowByColumn = async (table, column) => {
-  let { data: classes, error } = await supabase
+  let { data, error } = await supabase
     .from(table)
     .select(column);
 
-  return { classes, error };
+  return { data, error };
 };
 
 export const getAllFromTable = async (table) => {
-  let { data: classes, error } = await supabase
+  let { data, error } = await supabase
     .from(table)
     .select('*');
 
-  return { classes, error };
+  return { data, error };
 };
 
 /**
@@ -38,12 +38,12 @@ export const getAllFromTable = async (table) => {
  * @returns 
  */
 export const getTableRowByPagination = async (table, column, rangeStart, rangeEnd) => {
-  let { data: classes, error } = await supabase
+  let { data, error } = await supabase
     .from(table)
     .select(column)
     .range(rangeStart, rangeEnd)
 
-  return { classes, error };
+  return { data, error };
 };
 
 /**
