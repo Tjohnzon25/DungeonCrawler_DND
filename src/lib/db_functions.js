@@ -51,9 +51,10 @@ export const getTableRowByPagination = async (table, column, rangeStart, rangeEn
  * @param {string} tableName - Name of the table to query
  * @param {Array} filters - Array of filter objects like:
  *   { column: 'level', operator: 'gte', value: 10 }
+ * @param {string} sortby - column name to sort by
  * @returns {Promise<{ data: any[], error: any }>}
  */
-export const getTableRowByFilters = async (table, filters = []) => {
+export const getTableRowByFilters = async (table, filters = [], sortby) => {
   let query = supabase.from(table).select('*');
 
   for (const filter of filters) {
@@ -73,6 +74,10 @@ export const getTableRowByFilters = async (table, filters = []) => {
     else {
       query = query[operator](column, value);
     }
+  }
+
+  if (sortby?.column) {
+    query = query.order(sortby.column, { ascending: sortby.ascending });
   }
 
   return await query;

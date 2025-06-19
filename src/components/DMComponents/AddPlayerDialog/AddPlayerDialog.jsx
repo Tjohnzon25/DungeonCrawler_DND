@@ -98,7 +98,7 @@ const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
             {playerData ? 'Update Player' : 'Add Player'}
           </Button>
           <Button
-            color='primary'
+            color='secondary'
             variant='outlined'
             onClick={onClose}
           >

@@ -43,5 +43,32 @@ export const darkTheme = createTheme({
       main: '#1D2D44',
       contrastText: '#F0EBD8'
     }
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#F0EBD8',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#F0EBD8',
+          },
+        },
+        notchedOutline: {
+          borderColor: '#748CAB',
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#F0EBD8',
+          '&.Mui-focused': {
+            color: '#F0EBD8',
+          },
+        },
+      },
+    },
   }
 });

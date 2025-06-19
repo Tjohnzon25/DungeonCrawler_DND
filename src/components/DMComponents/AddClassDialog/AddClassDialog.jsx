@@ -151,7 +151,7 @@ const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
           {classData ? 'Update Class' : 'Add Class'}
         </Button>
         <Button
-          color='primary'
+          color='secondary'
           variant='outlined'
           onClick={onClose}
         >

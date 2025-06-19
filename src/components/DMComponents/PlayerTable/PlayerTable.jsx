@@ -39,8 +39,10 @@ const PlayerTable = () => {
       ]
       : [];
 
+    const sortby = { column: 'name', ascending: true };
+
     try {
-      const { data } = await getTableRowByFilters('players', filters);
+      const { data } = await getTableRowByFilters('players', filters, sortby);
       setPlayers(data);
     } catch (error) {
       enqueueSnackbar('Error getting players', { variant: 'error' });
@@ -116,71 +118,74 @@ const PlayerTable = () => {
   };
 
   return (
-    <Box>
-      <Box mb={2} display='flex' justifyContent='space-between'>
-        <TextField
-          label='Search by Name'
-          variant='outlined'
-          value={search}
-          onChange={handleSearchChange}
-          slotProps={{ inputLabel: { shrink: true } }}
-          size='small'
-        />
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={() => handleOpenDialog(null)}
-        >
-          Add Player
-        </Button>
-      </Box>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Class</TableCell>
-              <TableCell>Level</TableCell>
-              <TableCell>XP</TableCell>
-              <TableCell>Created At</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {visibleRows.map((player) => (
-              <TableRow
-                key={player.id}
-                hover
-                onClick={() => handleOpenDialog(player)}
-                style={{ cursor: 'pointer' }}
-              >
-                <TableCell>{player.name}</TableCell>
-                <TableCell>{getClassName(player.class_id)}</TableCell>
-                <TableCell>{player.level}</TableCell>
-                <TableCell>{player.xp}</TableCell>
-                <TableCell>
-                  {new Date(player.created_at).toLocaleDateString("en-US")}
-                </TableCell>
+    <Box mt={10} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+      <Box width="80%">
+        <Box mb={2} display="flex" justifyContent="space-between">
+          <TextField
+            label="Search by Name"
+            variant="outlined"
+            value={search}
+            onChange={handleSearchChange}
+            slotProps={{ inputLabel: { shrink: true } }}
+            size="small"
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleOpenDialog(null)}
+          >
+            Add Player
+          </Button>
+        </Box>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Class</TableCell>
+                <TableCell>Level</TableCell>
+                <TableCell>XP</TableCell>
+                <TableCell>Created At</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component='div'
-        count={players.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-      <AddPlayerDialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        onConfirm={handleSubmitDialog}
-        playerData={selectedPlayer}
-      />
+            </TableHead>
+            <TableBody>
+              {visibleRows.map((player) => (
+                <TableRow
+                  key={player.id}
+                  hover
+                  onClick={() => handleOpenDialog(player)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <TableCell>{player.name}</TableCell>
+                  <TableCell>{getClassName(player.class_id)}</TableCell>
+                  <TableCell>{player.level}</TableCell>
+                  <TableCell>{player.xp}</TableCell>
+                  <TableCell>
+                    {new Date(player.created_at).toLocaleDateString("en-US")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          count={players.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+        <AddPlayerDialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          onConfirm={handleSubmitDialog}
+          playerData={selectedPlayer}
+        />
+      </Box>
     </Box>
   );
+
 };
 
 export default PlayerTable;

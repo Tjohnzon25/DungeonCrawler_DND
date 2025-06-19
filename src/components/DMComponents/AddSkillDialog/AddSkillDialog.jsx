@@ -87,7 +87,7 @@ const AddSkill = ({ skillData, open, onClose, onConfirm }) => {
             {skillData ? 'Update Skill' : 'Add Skill'}
           </Button>
           <Button
-            color='primary'
+            color='secondary'
             variant='outlined'
             onClick={onClose}
           >
