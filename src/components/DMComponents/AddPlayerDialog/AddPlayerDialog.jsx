@@ -4,7 +4,6 @@ import FormTextField from '../../Formik/FormTextField';
 import { Button, Dialog, DialogContent, DialogActions } from '@mui/material';
 
 const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
-
   const formik = useFormik({
     initialValues: playerData || {
       name: '',
@@ -27,8 +26,9 @@ const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
 
       return errors
     },
+    enableReinitialize: true,
     onSubmit: async values => {
-      onConfirm(values);
+      await onConfirm(values);
     },
   });
 

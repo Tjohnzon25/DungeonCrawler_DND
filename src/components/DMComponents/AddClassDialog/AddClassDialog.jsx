@@ -34,8 +34,9 @@ const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
 
       return errors
     },
+    enableReinitialize: true,
     onSubmit: async values => {
-      onConfirm(values);
+      await onConfirm(values);
     },
   });
 
