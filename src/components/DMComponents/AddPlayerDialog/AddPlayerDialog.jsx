@@ -8,7 +8,7 @@ import { useSnackbar } from 'notistack';
 
 const getOptionLabel = (value, list) => {
   if (value) {
-    return (`${value?.name || list?.find(x => value === x.value)?.name}`)
+    return (`${list?.find(x => value === x.value)?.name || value?.name}`)
   } else {
     return '';
   }
@@ -86,6 +86,7 @@ const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
           name='class_id'
           label='Class'
           getOptionLabel={value => getOptionLabel(value, classes)}
+          storeProperty='id'
           options={classes}
         />
         <DialogActions>

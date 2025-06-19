@@ -137,6 +137,7 @@ const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
           name='allowedPlayers'
           label='Player(s) allowed to use'
           getOptionLabel={value => getOptionLabel(value, players)}
+          storeProperty='id'
           options={players}
           multiple
         />
