@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import React from 'react';
 import FormTextField from '../../Formik/FormTextField';
 import FormRichTextField from '../../Formik/FormRichTextField';
-import { Button, Dialog, DialogContent } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogActions } from '@mui/material';
 
 const AddSkill = ({ skillData, open, onClose, onConfirm }) => {
 
@@ -77,15 +77,22 @@ const AddSkill = ({ skillData, open, onClose, onConfirm }) => {
           name='level_20_description'
           label='Level 20 Description'
         />
-        <Button
-          color='primary'
-          variant='contained'
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleSubmit}
-        >
-          {skillData ? 'Update Skill' : 'Add Skill'}
-        </Button>
+        <DialogActions>
+          <Button
+            color='primary'
+            variant='contained'
+            onClick={handleSubmit}
+          >
+            {skillData ? 'Update Skill' : 'Add Skill'}
+          </Button>
+          <Button
+            color='primary'
+            variant='outlined'
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </DialogActions>
       </DialogContent>
     </Dialog>
   );

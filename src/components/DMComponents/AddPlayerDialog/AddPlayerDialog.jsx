@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import React from 'react';
 import FormTextField from '../../Formik/FormTextField';
-import { Button, Dialog, DialogContent } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogActions } from '@mui/material';
 
 const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
 
@@ -54,15 +54,23 @@ const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
           label='XP'
           type='number'
         />
-        <Button
-          color='primary'
-          variant='contained'
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleSubmit}
-        >
-          {playerData ? 'Update Player' : 'Add Player'}
-        </Button>
+        <DialogActions>
+          <Button
+            color='primary'
+            variant='contained'
+            onClick={handleSubmit}
+          >
+            {playerData ? 'Update Player' : 'Add Player'}
+          </Button>
+          <Button
+            color='primary'
+            variant='outlined'
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </DialogActions>
+
       </DialogContent>
     </Dialog>
   );
