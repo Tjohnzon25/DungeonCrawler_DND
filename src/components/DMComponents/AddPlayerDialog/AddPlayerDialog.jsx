@@ -1,9 +1,23 @@
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FormTextField from '../../Formik/FormTextField';
+import FormAutocompleteField from '../../Formik/FormAutocompleteField';
 import { Button, Dialog, DialogContent, DialogActions } from '@mui/material';
+import { getTableRowByColumn } from '../../../lib/db_functions';
+import { useSnackbar } from 'notistack';
+
+const getOptionLabel = (value, list) => {
+  if (value) {
+    return (`${value?.name || list?.find(x => value === x.value)?.name}`)
+  } else {
+    return '';
+  }
+};
 
 const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
+  const [classes, setClasses] = useState([]);
+  const { enqueueSnackbar } = useSnackbar();
+
   const formik = useFormik({
     initialValues: playerData || {
       name: '',
@@ -32,6 +46,19 @@ const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
     },
   });
 
+  const fetchClasses = useCallback(async () => {
+    try {
+      const { data } = await getTableRowByColumn('classes', '*');
+      setClasses(data);
+    } catch (error) {
+      enqueueSnackbar('Error getting classes', { variant: 'error' });
+    }
+  }, [enqueueSnackbar]);
+
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
+
   const { handleSubmit } = formik;
 
   return (
@@ -53,6 +80,13 @@ const AddPlayerDialog = ({ playerData, open, onClose, onConfirm }) => {
           name='xp'
           label='XP'
           type='number'
+        />
+        <FormAutocompleteField
+          formik={formik}
+          name='class_id'
+          label='Class'
+          getOptionLabel={value => getOptionLabel(value, classes)}
+          options={classes}
         />
         <DialogActions>
           <Button

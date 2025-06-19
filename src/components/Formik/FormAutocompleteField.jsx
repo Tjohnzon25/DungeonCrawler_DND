@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { get, isEqual } from 'lodash';
-import { Autocomplete, Box, TextField, Button, InputAdornment } from '@mui/material';
+import { get } from 'lodash';
+import {
+  Autocomplete,
+  Box,
+  TextField,
+  Button,
+  InputAdornment
+} from '@mui/material';
 
 const FormAutocompleteField = ({
   options,
@@ -8,7 +14,8 @@ const FormAutocompleteField = ({
   label,
   formik,
   disableGutters = false,
-  getOptionLabel,
+  getOptionLabel = (opt) => opt?.label || '',
+  getOptionValue = (opt) => opt?.id,
   showAddBtn = false,
   styleProps = {},
   className = '',
@@ -19,9 +26,10 @@ const FormAutocompleteField = ({
   const touched = get(formik.touched, name);
   const [inputValue, setInputValue] = useState('');
 
-  const handleChange = (e, value) => {
-    const newOption = value.value && value.label ? value.label : value;
-    formik.setFieldValue(name, newOption);
+  const currentOption = options.find((opt) => getOptionValue(opt) === formikValue) || null;
+
+  const handleChange = (event, newValue) => {
+    formik.setFieldValue(name, newValue ? getOptionValue(newValue) : null);
   };
 
   const handleAddClick = () => {
@@ -40,19 +48,13 @@ const FormAutocompleteField = ({
     <Box py={disableGutters ? 0 : 2}>
       <Autocomplete
         inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-        }}
+        onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
         size='small'
-        value={formikValue}
+        value={currentOption}
         onChange={handleChange}
         options={options}
         getOptionLabel={getOptionLabel}
-        isOptionEqualToValue={(option, value) => {
-          if (!option || !value) return false;
-          if (typeof option === 'string' && typeof value === 'string') return option === value;
-          return isEqual(option, value);
-        }}
+        isOptionEqualToValue={(option, value) => getOptionValue(option) === getOptionValue(value)}
         onBlur={(event) => formik.getFieldProps(name).onBlur(event)}
         className={className}
         ListboxProps={styleProps?.ListboxProps}

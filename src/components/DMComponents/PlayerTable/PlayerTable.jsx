@@ -50,7 +50,7 @@ const PlayerTable = () => {
 
   const fetchClasses = useCallback(async () => {
     try {
-      const { data } = await getTableRowByColumn('classes', 'id');
+      const { data } = await getTableRowByColumn('classes', '*');
       setClasses(data || []);
     } catch (error) {
       enqueueSnackbar('Error fetching classes', { variant: 'error' });
