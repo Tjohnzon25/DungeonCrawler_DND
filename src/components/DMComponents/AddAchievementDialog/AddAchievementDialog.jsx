@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import FormTextField from '../../Formik/FormTextField';
 import FormRichTextField from '../../Formik/FormRichTextField';
-import { Button, Dialog, DialogActions, DialogContent, Grid } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent } from '@mui/material';
 import FormAutocompleteField from '../../Formik/FormAutocompleteField';
 import { useSnackbar } from 'notistack';
 import { getTableRowByColumn } from '../../../lib/db_functions';
@@ -15,29 +15,22 @@ const getOptionLabel = (value, list) => {
   }
 };
 
-const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
+const AddAchievementDialog = ({ achievementData, open, onClose, onConfirm }) => {
   const [players, setPlayers] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
 
   const formik = useFormik({
-    initialValues: classData || {
+    initialValues: achievementData || {
       name: '',
       description: '',
-      stat_bonus: {
-        strength: 0,
-        dexterity: 0,
-        constitution: 0,
-        intelligence: 0,
-        wisdom: 0,
-        charisma: 0
-      },
+      reward: '',
       allowedPlayers: []
     },
     validate: values => {
       const errors = {}
 
       if (!values.name) {
-        errors.name = 'Class name is required'
+        errors.name = 'Achievement name is required'
       }
       if (!values.description) {
         errors.level = 'Description is required'
@@ -72,67 +65,22 @@ const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
         <FormTextField
           formik={formik}
           name='name'
-          label='Class Name'
+          label='Achievement Name'
         />
         <FormRichTextField
           formik={formik}
           name='description'
           label='Description'
         />
-        <Grid container spacing={2} justifyContent='center'>
-          <Grid item size={2}>
-            <FormTextField
-              formik={formik}
-              name='stat_bonus.strength'
-              label='STR'
-              type='number'
-            />
-          </Grid>
-          <Grid item size={2}>
-            <FormTextField
-              formik={formik}
-              name='stat_bonus.dexterity'
-              label='DEX'
-              type='number'
-            />
-          </Grid>
-          <Grid item size={2}>
-            <FormTextField
-              formik={formik}
-              name='stat_bonus.constitution'
-              label='CON'
-              type='number'
-            />
-          </Grid>
-          <Grid item size={2}>
-            <FormTextField
-              formik={formik}
-              name='stat_bonus.intelligence'
-              label='INT'
-              type='number'
-            />
-          </Grid>
-          <Grid item size={2}>
-            <FormTextField
-              formik={formik}
-              name='stat_bonus.wisdom'
-              label='WIS'
-              type='number'
-            />
-          </Grid>
-          <Grid item size={2}>
-            <FormTextField
-              formik={formik}
-              name='stat_bonus.charisma'
-              label='CHA'
-              type='number'
-            />
-          </Grid>
-        </Grid>
+        <FormRichTextField
+          formik={formik}
+          name='reward'
+          label='Reward (Optional)'
+        />
         <FormAutocompleteField
           formik={formik}
           name='allowedPlayers'
-          label='Player(s) allowed to use'
+          label='Player(s) that got achievement'
           getOptionLabel={value => getOptionLabel(value, players)}
           storeProperty='id'
           options={players}
@@ -145,7 +93,7 @@ const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
           variant='contained'
           onClick={handleSubmit}
         >
-          {classData ? 'Update Class' : 'Add Class'}
+          {achievementData ? 'Update Achievement' : 'Add Achievement'}
         </Button>
         <Button
           color='secondary'
@@ -159,4 +107,4 @@ const AddClassDialog = ({ classData, open, onClose, onConfirm }) => {
   );
 };
 
-export default AddClassDialog;
+export default AddAchievementDialog;
