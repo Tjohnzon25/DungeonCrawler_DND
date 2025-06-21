@@ -11,6 +11,8 @@ import {
   Box,
   TablePagination,
   Button,
+  Chip,
+  Typography
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { deleteRowInTable, getTableRowByColumn, getTableRowByFilters, postRowToTable, updateRowInTable } from '../../../lib/db_functions';
@@ -31,24 +33,35 @@ const ClassTable = () => {
   const fetchClasses = async (searchTerm) => {
     const filters = searchTerm
       ? [
-        {
-          column: 'name',
-          operator: SupabaseOperators.ILIKE,
-          value: `%${searchTerm}%`,
-        },
-      ]
+          {
+            column: 'name',
+            operator: SupabaseOperators.ILIKE,
+            value: `%${searchTerm}%`,
+          },
+        ]
       : [];
 
     const sortby = { column: 'name', ascending: true };
 
     try {
-      const { data } = await getTableRowByFilters('classes', filters, sortby);
-      setClasses(data);
+      const { data: classData } = await getTableRowByFilters('classes', filters, sortby);
+      const { data: playerClassLinks } = await getTableRowByColumn('player_class', '*');
+
+      const mappedClasses = classData.map((cls) => {
+        const allowedPlayers = playerClassLinks
+          .filter((link) => link.class_id === cls.id)
+          .map((link) => link.player_id);
+
+        return { ...cls, allowedPlayers };
+      });
+
+      setClasses(mappedClasses);
     } catch (error) {
       enqueueSnackbar('Error getting classes', { variant: 'error' });
-      setPlayers([]);
+      setClasses([]);
     }
-  };
+    };
+
 
   const fetchPlayers = useCallback(async () => {
     try {
@@ -155,7 +168,7 @@ const ClassTable = () => {
             if (data?.length) {
               // Delete each row by ID
               for (const row of data) {
-                deleteRowInTable('player_class', 'id', row.id);
+                await deleteRowInTable('player_class', 'id', row.id);
               }
             }
           });
@@ -186,6 +199,10 @@ const ClassTable = () => {
     }
   };
 
+  const getPlayerNameById = (id) => {
+    const player = players.find((p) => p.id === id);
+    return player?.name || 'Unknown';
+  };
   
   return (
     <Box mt={10} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
@@ -218,6 +235,7 @@ const ClassTable = () => {
                 <TableCell></TableCell>
                 <TableCell></TableCell>
                 <TableCell></TableCell>
+                <TableCell>Allowed Players</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -235,6 +253,20 @@ const ClassTable = () => {
                   <TableCell>INT: {classes.stat_bonus?.intelligence}</TableCell>
                   <TableCell>WIS: {classes.stat_bonus?.wisdom}</TableCell>
                   <TableCell>CHA: {classes.stat_bonus?.charisma}</TableCell>
+                  <TableCell>
+                    {classes.allowedPlayers?.length > 0 ? (
+                      classes.allowedPlayers.map((playerId) => (
+                        <Chip
+                          key={playerId}
+                          label={getPlayerNameById(playerId)}
+                          size="small"
+                          sx={{ marginRight: 0.5, marginBottom: 0.5 }}
+                        />
+                      ))
+                    ) : (
+                      <Typography>No Players</Typography>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
