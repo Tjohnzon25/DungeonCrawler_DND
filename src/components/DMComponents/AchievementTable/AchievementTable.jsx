@@ -12,10 +12,17 @@ import {
   TablePagination,
   Button,
   Chip,
-  Typography
+  Typography,
+  MenuItem,
 } from '@mui/material';
 import { debounce } from 'lodash';
-import { deleteRowInTable, getTableRowByColumn, getTableRowByFilters, postRowToTable, updateRowInTable } from '../../../lib/db_functions';
+import {
+  deleteRowInTable,
+  getTableRowByColumn,
+  getTableRowByFilters,
+  postRowToTable,
+  updateRowInTable,
+} from '../../../lib/db_functions';
 import { SupabaseOperators } from '../../../lib/supabaseOperators';
 import { useSnackbar } from 'notistack';
 import AddAchievementDialog from '../AddAchievementDialog/AddAchievementDialog.jsx';
@@ -25,20 +32,20 @@ const AchievementTable = () => {
   const [players, setPlayers] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [selectedAchievement, setSelectedAchievement] = useState(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const { enqueueSnackbar } = useSnackbar();
 
-  const fetchAchievements = async (searchTerm) => {
+  // Fetch all achievements (unfiltered)
+  const fetchAchievements = useCallback(async (searchTerm) => {
     const filters = searchTerm
-      ? [
-          {
-            column: 'name',
-            operator: SupabaseOperators.ILIKE,
-            value: `%${searchTerm}%`,
-          },
-        ]
+      ? [{
+          column: 'name',
+          operator: SupabaseOperators.ILIKE,
+          value: `%${searchTerm}%`,
+        }]
       : [];
 
     const sortby = { column: 'name', ascending: true };
@@ -47,12 +54,12 @@ const AchievementTable = () => {
       const { data: achievementData } = await getTableRowByFilters('achievements', filters, sortby);
       const { data: playerAchievementLinks } = await getTableRowByColumn('player_achievements', '*');
 
-      const mappedAchievements = achievementData.map((cls) => {
+      const mappedAchievements = achievementData.map((ach) => {
         const allowedPlayers = playerAchievementLinks
-          .filter((link) => link.achievement_id === cls.id)
+          .filter((link) => link.achievement_id === ach.id)
           .map((link) => link.player_id);
 
-        return { ...cls, allowedPlayers };
+        return { ...ach, allowedPlayers };
       });
 
       setAchievements(mappedAchievements);
@@ -60,8 +67,9 @@ const AchievementTable = () => {
       enqueueSnackbar('Error getting achievements', { variant: 'error' });
       setAchievements([]);
     }
-    };
+  }, [enqueueSnackbar]);
 
+  const debouncedFetch = useMemo(() => debounce(fetchAchievements, 300), [fetchAchievements]);
 
   const fetchPlayers = useCallback(async () => {
     try {
@@ -89,9 +97,6 @@ const AchievementTable = () => {
     }
   };
 
-
-  const debouncedFetch = useMemo(() => debounce((val) => fetchAchievements(val), 300), []);
-
   useEffect(() => {
     fetchPlayers();
   }, [fetchPlayers]);
@@ -113,25 +118,16 @@ const AchievementTable = () => {
     setPage(0);
   };
 
-  const visibleRows = achievements.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  const handleOpenDialog = async (selectedAchievement) => {
-    if (!selectedAchievement) {
+  const handleOpenDialog = async (achievement) => {
+    if (!achievement) {
       setSelectedAchievement(null);
       setOpenDialog(true);
       return;
     }
 
-    const allowedPlayers = await fetchAllowedPlayersForAchievement(selectedAchievement.id);
+    const allowedPlayers = await fetchAllowedPlayersForAchievement(achievement.id);
 
-    setSelectedAchievement({
-      ...selectedAchievement,
-      allowedPlayers,
-    });
-
+    setSelectedAchievement({ ...achievement, allowedPlayers });
     setOpenDialog(true);
   };
 
@@ -146,7 +142,6 @@ const AchievementTable = () => {
     const achievementId = values.id;
     const addedPlayers = allowedPlayers.filter(id => !compareAllowedPlayers.includes(id));
     const removedPlayers = compareAllowedPlayers.filter(id => !allowedPlayers.includes(id));
-
     delete values.allowedPlayers;
 
     try {
@@ -158,29 +153,23 @@ const AchievementTable = () => {
         await postRowToTable('player_achievements', newLinks);
       }
 
-      // delete removed player-achievement links
       if (achievementId && removedPlayers.length > 0) {
         for (const player_id of removedPlayers) {
-          await getTableRowByFilters('player_achievements', [
+          const { data } = await getTableRowByFilters('player_achievements', [
             { column: 'achievement_id', operator: SupabaseOperators.EQ, value: achievementId },
             { column: 'player_id', operator: SupabaseOperators.EQ, value: player_id },
-          ]).then(async ({ data }) => {
-            if (data?.length) {
-              // Delete each row by ID
-              for (const row of data) {
-                await deleteRowInTable('player_achievements', 'id', row.id);
-              }
-            }
-          });
+          ]);
+
+          for (const row of data || []) {
+            await deleteRowInTable('player_achievements', 'id', row.id);
+          }
         }
       }
 
-      // update or insert the achievement
       if (achievementId) {
         await updateRowInTable('achievements', values, 'id', achievementId);
       } else {
         const { data } = await postRowToTable('achievements', [values]);
-        // insert player_achievements if it's a new achievements
         if (allowedPlayers.length > 0) {
           const newLinks = allowedPlayers.map((player_id) => ({
             player_id,
@@ -195,33 +184,59 @@ const AchievementTable = () => {
       enqueueSnackbar('Error updating achievement and allowed players', { variant: 'error' });
     } finally {
       handleCloseDialog();
-      debouncedFetch(search);
+      fetchAchievements(search);
     }
   };
 
-  const getPlayerNameById = (id) => {
-    const player = players.find((p) => p.id === id);
-    return player?.name || 'Unknown';
-  };
-  
+  const getPlayerNameById = (id) => players.find((p) => p.id === id)?.name || 'Unknown';
+
+  const filteredAchievements = useMemo(() => {
+    if (!selectedPlayerId) return achievements;
+    return achievements.filter((ach) => ach.allowedPlayers.includes(selectedPlayerId));
+  }, [achievements, selectedPlayerId]);
+
+  const visibleRows = filteredAchievements.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   return (
     <Box mt={10} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
       <Box width="80%">
         <Box mb={2} display="flex" justifyContent="space-between">
-          <TextField
-            label="Search by Name"
-            variant="outlined"
-            value={search}
-            onChange={handleSearchChange}
-            slotProps={{ inputLabel: { shrink: true } }}
-            size="small"
-          />
+          <Box display="flex">
+            <TextField
+              label="Search by Name"
+              variant="outlined"
+              value={search}
+              onChange={handleSearchChange}
+              size="small"
+              sx={{ width: 200 }}
+              slotProps={{ inputLabel: { shrink: true }}}
+            />
+            <TextField
+              select
+              label="Filter by Player"
+              value={selectedPlayerId}
+              onChange={(e) => setSelectedPlayerId(e.target.value)}
+              size="small"
+              sx={{ marginLeft: 2, width: 200 }}
+              slotProps={{ inputLabel: { shrink: true }}}
+            >
+              <MenuItem value="">All Players</MenuItem>
+              {players.map((player) => (
+                <MenuItem key={player.id} value={player.id}>
+                  {player.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
           <Button
             variant="contained"
             color="primary"
             onClick={() => handleOpenDialog(null)}
           >
-            Add Class
+            Add Achievement
           </Button>
         </Box>
         <TableContainer component={Paper}>
@@ -229,7 +244,7 @@ const AchievementTable = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Achievement Name</TableCell>
-                <TableCell>Allowed Players</TableCell>
+                <TableCell>Players Achieved This</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -238,7 +253,7 @@ const AchievementTable = () => {
                   key={achievement.id}
                   hover
                   onClick={() => handleOpenDialog(achievement)}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: 'pointer' }}
                 >
                   <TableCell>{achievement.name}</TableCell>
                   <TableCell>
@@ -252,7 +267,7 @@ const AchievementTable = () => {
                         />
                       ))
                     ) : (
-                      <Typography></Typography>
+                      <Typography variant="body2" color="textSecondary">No Players</Typography>
                     )}
                   </TableCell>
                 </TableRow>
@@ -261,7 +276,7 @@ const AchievementTable = () => {
           </Table>
         </TableContainer>
         <TablePagination
-          component="div"
+          component='div'
           count={achievements.length}
           page={page}
           onPageChange={handleChangePage}
