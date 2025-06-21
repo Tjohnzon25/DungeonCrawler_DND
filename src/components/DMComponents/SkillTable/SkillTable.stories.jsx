@@ -12,7 +12,7 @@ const Template = ({ ...args }) => {
 
 const SkillTableConfig = {
   render: Template.bind({}),
-  title: 'SkillTable',
+  title: 'DM Components/SkillTable',
   component: SkillTable,
   tags: ['!autodocs'],
   decorators: [

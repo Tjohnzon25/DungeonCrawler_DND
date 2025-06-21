@@ -12,7 +12,7 @@ const Template = ({ ...args }) => {
 
 const AchievementTableConfig = {
   render: Template.bind({}),
-  title: 'AchievementTable',
+  title: 'DM Components/AchievementTable',
   component: AchievementTable,
   tags: ['!autodocs'],
   decorators: [

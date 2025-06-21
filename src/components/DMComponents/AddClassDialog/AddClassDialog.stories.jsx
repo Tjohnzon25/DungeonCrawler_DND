@@ -25,7 +25,7 @@ const Template = ({ ...args }) => {
 
 const AddClassDialogConfig = {
   render: Template.bind({}),
-  title: 'AddClassDialog',
+  title: 'DM Components/AddClassDialog',
   component: AddClassDialog,
   tags: ['!autodocs'],
   decorators: [

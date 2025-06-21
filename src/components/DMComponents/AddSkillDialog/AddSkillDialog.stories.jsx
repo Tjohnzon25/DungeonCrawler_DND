@@ -25,7 +25,7 @@ const Template = ({ ...args }) => {
 
 const AddSkillDialogConfig = {
   render: Template.bind({}),
-  title: 'AddSkillDialog',
+  title: 'DM Components/AddSkillDialog',
   component: AddSkillDialog,
   tags: ['!autodocs'],
   decorators: [

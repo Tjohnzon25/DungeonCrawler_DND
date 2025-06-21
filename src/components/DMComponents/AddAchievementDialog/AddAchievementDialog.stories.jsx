@@ -25,7 +25,7 @@ const Template = ({ ...args }) => {
 
 const AddAchievementDialogConfig = {
   render: Template.bind({}),
-  title: 'AddAchievementDialog',
+  title: 'DM Components/AddAchievementDialog',
   component: AddAchievementDialog,
   tags: ['!autodocs'],
   decorators: [

@@ -6,7 +6,7 @@ const Template = ({ ...args }) => <DMLogin {...args} />
 
 const DMLoginConfig = {
 	render: Template.bind({}),
-	title: 'DMLogin',
+	title: 'DM Components/DM Login',
 	component: DMLogin,
 	tags: ['!autodocs'],
 	decorators: [

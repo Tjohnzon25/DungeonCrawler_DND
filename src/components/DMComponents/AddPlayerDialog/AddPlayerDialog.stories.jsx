@@ -25,7 +25,7 @@ const Template = ({ ...args }) => {
 
 const AddPlayerDialogConfig = {
   render: Template.bind({}),
-  title: 'AddPlayerDialog',
+  title: 'DM Components/AddPlayerDialog',
   component: AddPlayerDialog,
   tags: ['!autodocs'],
   decorators: [
