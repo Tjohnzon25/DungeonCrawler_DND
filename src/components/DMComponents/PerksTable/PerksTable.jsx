@@ -50,22 +50,22 @@ const PerksTable = () => {
     const sortby = { column: 'name', ascending: true };
 
     try {
-          const { data: perkData } = await getTableRowByFilters('perks', filters, sortby);
-          const { data: playerPerksLinks } = await getTableRowByColumn('player_perks', '*');
-    
-          const mappedPerks = perkData.map((ach) => {
-            const allowedPlayers = playerPerksLinks
-              .filter((link) => link.perk_id === ach.id)
-              .map((link) => link.player_id);
-    
-            return { ...ach, allowedPlayers };
-          });
-    
-          setPerks(mappedPerks);
-        } catch (error) {
-          enqueueSnackbar('Error getting perks', { variant: 'error' });
-          setPerks([]);
-        }
+      const { data: perkData } = await getTableRowByFilters('perks', filters, sortby);
+      const { data: playerPerksLinks } = await getTableRowByColumn('player_perks', '*');
+
+      const mappedPerks = perkData.map((ach) => {
+        const allowedPlayers = playerPerksLinks
+          .filter((link) => link.perk_id === ach.id)
+          .map((link) => link.player_id);
+
+        return { ...ach, allowedPlayers };
+      });
+
+      setPerks(mappedPerks);
+    } catch (error) {
+      enqueueSnackbar('Error getting perks', { variant: 'error' });
+      setPerks([]);
+    }
   }, [enqueueSnackbar]);
 
   const debouncedFetch = useMemo(() => debounce(fetchPerks, 300), [fetchPerks]);
