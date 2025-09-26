@@ -28,7 +28,7 @@ const PlayerTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const { enqueueSnackbar } = useSnackbar();
 
-  const fetchPlayers = async (searchTerm) => {
+  const fetchPlayers = useCallback(async (searchTerm) => {
     const filters = searchTerm
       ? [
         {
@@ -48,7 +48,7 @@ const PlayerTable = () => {
       enqueueSnackbar('Error getting players', { variant: 'error' });
       setPlayers([]);
     }
-  };
+  }, [enqueueSnackbar]);
 
   const fetchClasses = useCallback(async () => {
     try {
@@ -64,7 +64,7 @@ const PlayerTable = () => {
     return classItem ? classItem.name : 'N/A';
   };
 
-  const debouncedFetch = useMemo(() => debounce((val) => fetchPlayers(val), 300), []);
+  const debouncedFetch = useMemo(() => debounce((val) => fetchPlayers(val), 300), [fetchPlayers]);
 
   useEffect(() => {
     fetchClasses();
@@ -145,7 +145,6 @@ const PlayerTable = () => {
                 <TableCell>Class</TableCell>
                 <TableCell>Level</TableCell>
                 <TableCell>XP</TableCell>
-                <TableCell>Created At</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -160,9 +159,6 @@ const PlayerTable = () => {
                   <TableCell>{getClassName(player.class_id)}</TableCell>
                   <TableCell>{player.level}</TableCell>
                   <TableCell>{player.xp}</TableCell>
-                  <TableCell>
-                    {new Date(player.created_at).toLocaleDateString("en-US")}
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

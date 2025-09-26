@@ -15,22 +15,21 @@ const getOptionLabel = (value, list) => {
   }
 };
 
-const AddAchievementDialog = ({ achievementData, open, onClose, onConfirm }) => {
+const AddPerkDialog = ({ perkData, open, onClose, onConfirm }) => {
   const [players, setPlayers] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
 
   const formik = useFormik({
-    initialValues: achievementData || {
+    initialValues: perkData || {
       name: '',
       description: '',
-      reward: '',
       allowedPlayers: []
     },
     validate: values => {
       const errors = {}
 
       if (!values.name) {
-        errors.name = 'Achievement name is required'
+        errors.name = 'Perk name is required'
       }
       if (!values.description) {
         errors.description = 'Description is required'
@@ -65,22 +64,17 @@ const AddAchievementDialog = ({ achievementData, open, onClose, onConfirm }) => 
         <FormTextField
           formik={formik}
           name='name'
-          label='Achievement Name'
+          label='Perk Name'
         />
         <FormRichTextField
           formik={formik}
           name='description'
           label='Description'
         />
-        <FormRichTextField
-          formik={formik}
-          name='reward'
-          label='Reward (Optional)'
-        />
         <FormAutocompleteField
           formik={formik}
           name='allowedPlayers'
-          label='Player(s) that got achievement'
+          label='Player(s) that have perk'
           getOptionLabel={value => getOptionLabel(value, players)}
           storeProperty='id'
           options={players}
@@ -93,7 +87,7 @@ const AddAchievementDialog = ({ achievementData, open, onClose, onConfirm }) => 
           variant='contained'
           onClick={handleSubmit}
         >
-          {achievementData ? 'Update Achievement' : 'Add Achievement'}
+          {perkData ? 'Update Perk' : 'Add Perk'}
         </Button>
         <Button
           color='secondary'
@@ -107,4 +101,4 @@ const AddAchievementDialog = ({ achievementData, open, onClose, onConfirm }) => 
   );
 };
 
-export default AddAchievementDialog;
+export default AddPerkDialog;
